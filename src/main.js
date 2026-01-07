@@ -84,6 +84,7 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
     let joueurs;
     let datas;
     let colors;
+    let lesStatus;
 
 
     // défini le contenu de dataset (Chart) avec le temps de chacun par problème de la famille renseigné plus haut
@@ -92,6 +93,7 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             .sort((a, b) => a.time - b.time);
         //console.log(dataFiltree);
         temps = dataFiltree.map(item => item.time); // Axe y
+        lesStatus = dataFiltree.map(item => item.status);
 
         colors = temps.map(temp => {
             if (temp >= 10000) {
@@ -101,11 +103,12 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
                 return colors = '#222831';
             }
         }); 
-        //console.log(temps);
+        console.log(dataFamille);
         return {
             label: probleme,
             data: temps,
             borderWidth: 1,
+            extraStatus: lesStatus,
             backgroundColor: colors,
             borderColor: colors,
             hidden: (index !== 0),
@@ -198,7 +201,10 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             align: 'top',
             rotation: 0,
             formatter: function(value, context) {
+                const index = context.dataIndex;
+                const status = context.dataset.extraStatus[index];
                     if (value == 10000) return "";
+                    if (status === 'UNSAT') return "UNSAT";
                     return Math.round(value) + 's';
                 }
             }

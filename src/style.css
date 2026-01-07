@@ -41,9 +41,9 @@
 }
 
 #loose::after{
-    content: "Time-Out";
+    content: "Time-Out ne peut rien conclure.";
     padding-left: 4rem;
-    width: 5rem;
+    width: 15rem;
     display: block;
 }
 
