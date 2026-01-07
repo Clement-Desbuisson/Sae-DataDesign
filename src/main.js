@@ -1,9 +1,12 @@
 import Chart from 'chart.js/auto';
+// utiliser un plugin
+
 
 // URL de JSON permettant d'importer le fichier
 const url_json = 'https://www.cril.univ-artois.fr/~lecoutre/teaching/jssae/code5/results.json'; 
 
 let monGraphique = null; // stocker l'instance du graphique
+let divHide = document.getElementById('loose');
 
 async function init() {
     try {
@@ -11,6 +14,8 @@ async function init() {
     const reponse = await fetch(url_json);
     if (!reponse.ok) throw new Error('Erreur réseau');
     const data = await reponse.json();
+
+    
 
     //débugage pour comprendre les données reçu
     /*console.log("Données reçues :", data);
@@ -26,6 +31,7 @@ async function init() {
     /*console.log(cat);*/
 
     let btnZone = document.getElementById('button-container');
+    
 
     cat.forEach(famille => {
         let btn = document.createElement('button');
@@ -34,6 +40,7 @@ async function init() {
         btn.onclick = () => {
             /*console.log(famille);*/
             chargerUneFamille(famille, data[2].data);
+            divHide.style.display = "block";
         } 
         btnZone.appendChild(btn);
     });
@@ -107,6 +114,8 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
     let temps;
     let joueurs;
     let datas;
+    let colors;
+
 
     // défini le contenu de dataset (Chart) avec le temps de chacun par problème de la famille renseigné plus haut
     datas = Listeproblemes.map(probleme => {
@@ -114,13 +123,22 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             .sort((a, b) => a.time - b.time);
         //console.log(dataFiltree);
         temps = dataFiltree.map(item => item.time); // Axe y
+
+        colors = temps.map(temp => {
+            if (temp >= 10000) {
+                return colors = '#FA5C5C';
+            }
+            else {
+                return colors = '#222831';
+            }
+        }); 
         //console.log(temps);
         return {
             label: probleme,
             data: temps,
             borderWidth: 1,
-            backgroundColor: 'rgba(56, 143, 143, 0.5)',
-            borderColor: 'rgba(75, 192, 192, 1)'
+            backgroundColor: colors,
+            borderColor: colors
         }
         });
 
@@ -138,7 +156,6 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
     if (monGraphique) { // permet de détruire le précédent 
         monGraphique.destroy();
     }
-
     monGraphique = new Chart(ctx, {
     type: 'bar', // Types possibles: 'bar', 'line', 'pie', 'doughnut'
     data: {
@@ -146,17 +163,63 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
         datasets: datas
     },
     options: {
+        borderRadius: 2,
         scales: {
-            y: { beginAtZero: true }
+            x: {
+                grid: {
+                display: false, 
+                drawBorder: false // ligne bas false
+                },
+                title: {
+                display: true,
+                text: 'Algorithmes (Solveurs)', // Titre en bas
+                color: 'rgba(0, 0, 0, 1)',
+                }
+            },
+            y: { 
+                type: 'logarithmic',
+                grid: {
+                color: 'rgba(200, 200, 200, 0.5)', // Lignes horizontales très discrètes pour rendre ça plus beau
+                },
+                title: {
+                display: true,
+                text: 'Temps (en s)' // Titre à gauche
+                },
+                beginAtZero: true 
+            }
         },
         responsive: true,
         plugins: {
+            legend: {
+                display: true,
+            },
             title: {
                 display: true,
                 text: 'Problème : ' + nomDuProbleme // Affiche le nom du problème en titre
+            },
+            tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 10,
+            cornerRadius: 4,
+            callbacks: {
+                // cela rajoute sec après les datas de l'info bulles
+                label: function(context) {
+                    return context.dataset.label + ': ' + context.raw + ' sec';
+                    }
+                }
+            },
+            datalabels: {
+            color: 'black',
+            anchor: 'end', // Ancré à la fin de la barre
+            align: 'top',  // Affiché au-dessus
+            formatter: function(value, context) {
+                    // Tu peux changer le texte ici (ex: ajouter "s")
+                    return value + ' s';
+                }
             }
-        }
-    }
+        },
+
+}
     });
 }
 

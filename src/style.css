@@ -1,0 +1,55 @@
+#button-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 80%;
+    margin: 0 auto;
+
+}
+
+#button-container button{
+    padding: 0.7rem 1rem;
+    margin: 0.3rem 0.5rem;
+    gap: 20px;
+    color: #DFD0B8;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: #222831;
+    border: solid 0.1rem #222831;
+    border-radius : 1rem;
+
+}
+
+#button-container button:hover{
+    color: #222831;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background-color: #ffffff;
+    border: solid 0.1rem #222831;
+    border-radius : 1rem;
+
+}
+
+#loose  {
+    width: 60px;
+    height: 20px;
+    background-color: #FA5C5C;
+    display: none;
+    margin: 0 auto;
+    color: #222831;
+}
+
+#loose::after{
+    content: "Time-Out";
+    padding-left: 4rem;
+    width: 5rem;
+    display: block;
+}
+
+h1 {
+    color: #222831;
+    font-weight: bold;
+    font-size: 3rem;
+    text-align: center;
+}
