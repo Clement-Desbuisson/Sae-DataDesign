@@ -1,7 +1,8 @@
 import Chart from 'chart.js/auto';
-// utiliser un plugin
+// utilisation d'un plugin afin d'avoir les labels sur les barres
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-
+Chart.register(ChartDataLabels);
 // URL de JSON permettant d'importer le fichier
 const url_json = 'https://www.cril.univ-artois.fr/~lecoutre/teaching/jssae/code5/results.json'; 
 
@@ -44,36 +45,6 @@ async function init() {
         } 
         btnZone.appendChild(btn);
     });
-    /*
-
-    // charger les données de chaque famille groupé
-    cat.forEach(famille => {
-        chargerUneFamille(famille, data[2].data);
-    });
-
-    */
-
-    /*
-        // permet d'avoir les données d'un fullname
-        const dataFiltree = data[2].data
-            .filter(item => item.fullname.includes('AztecDiamond-050'))
-            .sort((a, b) => a.time - b.time);     
-    */
-    /*
-        // permet d'avoir tout les fullname d'une famille
-        const dataFamily = data[2].data
-            .filter(item => item.fullname && item.family.includes('AztecDiamond'))
-            .reduce((acc,item) => { // defini reduce un objet et la liste des item filtré.
-                const cle = item.fullname; // defini la valeur de la clé avec l'item suivant
-                if (!acc[cle]) { // vérifie si un groupe avec cette clé existe
-                    acc[cle] = [];  // si non on crée un nouveau groupe
-                }
-                acc[cle].push(item);    // on push l'item au groupe
-                return acc; // rend le groupe pour l'item suivant
-            },{});  // défini acc, soit un objet vide
-
-        console.log(dataFamily);
-    */
 
     } catch (erreur) {
     console.error("Problème :", erreur);
@@ -108,8 +79,6 @@ function chargerUneFamille(famille, data){
 
 
 function afficherFamille(dataFamille, Listeproblemes, famille) {
-
-    // Défini dataFiltree avec les données de la famille données et ces problèmes associés
     let dataFiltree;
     let temps;
     let joueurs;
@@ -118,7 +87,7 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
 
 
     // défini le contenu de dataset (Chart) avec le temps de chacun par problème de la famille renseigné plus haut
-    datas = Listeproblemes.map(probleme => {
+    datas = Listeproblemes.map((probleme,index) => { // index permet d'être utilisé lors de return afin de savoir si c'est la première instance du index, pour masquer ou non par défault
         dataFiltree = dataFamille[probleme]
             .sort((a, b) => a.time - b.time);
         //console.log(dataFiltree);
@@ -138,7 +107,8 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             data: temps,
             borderWidth: 1,
             backgroundColor: colors,
-            borderColor: colors
+            borderColor: colors,
+            hidden: (index !== 0),
         }
         });
 
@@ -150,14 +120,13 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
     /*console.log("temps", temps);
     console.log("data", datas);*/
 
-    // 4. Création du graphique
-    const ctx = document.querySelector('#canva0'); // On cible le canvas
+    const ctx = document.querySelector('#canva0');
     
-    if (monGraphique) { // permet de détruire le précédent 
+    if (monGraphique) { // destroy précédent
         monGraphique.destroy();
     }
     monGraphique = new Chart(ctx, {
-    type: 'bar', // Types possibles: 'bar', 'line', 'pie', 'doughnut'
+    type: 'bar',
     data: {
         labels: joueurs,
         datasets: datas
@@ -179,7 +148,7 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             y: { 
                 type: 'logarithmic',
                 grid: {
-                color: 'rgba(200, 200, 200, 0.5)', // Lignes horizontales très discrètes pour rendre ça plus beau
+                color: 'rgba(200, 200, 200, 0.5)',
                 },
                 title: {
                 display: true,
@@ -192,10 +161,24 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
         plugins: {
             legend: {
                 display: true,
+                labels: {
+                    padding: 10,
+                }
             },
             title: {
                 display: true,
-                text: 'Problème : ' + nomDuProbleme // Affiche le nom du problème en titre
+                text: 'Problème : ' + nomDuProbleme, // Affiche le nom du problème en titre
+                padding: {
+                    top: 20,
+                    bottom: 20,
+                },
+                color: '#393E46',
+                font: {
+                size: 24,      
+                weight: 'bold', 
+                family: 'Arial',
+                },
+                
             },
             tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -209,12 +192,14 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
                 }
             },
             datalabels: {
-            color: 'black',
-            anchor: 'end', // Ancré à la fin de la barre
-            align: 'top',  // Affiché au-dessus
+            display: 'auto',
+            color: '#393E46',
+            anchor: 'end', 
+            align: 'top',
+            rotation: 0,
             formatter: function(value, context) {
-                    // Tu peux changer le texte ici (ex: ajouter "s")
-                    return value + ' s';
+                    if (value == 10000) return "";
+                    return Math.round(value) + 's';
                 }
             }
         },

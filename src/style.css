@@ -53,3 +53,9 @@ h1 {
     font-size: 3rem;
     text-align: center;
 }
+
+.container {
+    width: 65%;
+    margin: 0 auto;
+    max-width: 1500px       
+}
