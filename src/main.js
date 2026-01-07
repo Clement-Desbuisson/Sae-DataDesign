@@ -5,7 +5,7 @@ const url_json = 'https://www.cril.univ-artois.fr/~lecoutre/teaching/jssae/code5
 
 let monGraphique = null; // stocker l'instance du graphique
 
-async function afficherGraphique() {
+async function init() {
     try {
     // Récupération des données
     const reponse = await fetch(url_json);
@@ -23,7 +23,20 @@ async function afficherGraphique() {
         .map(item => item.family);
     cat = [...new Set(cat)]; // enlève les doublons
 
-    chargerUneFamille('AztecDiamond', data[2].data);
+    /*console.log(cat);*/
+
+    let btnZone = document.getElementById('button-container');
+
+    cat.forEach(famille => {
+        let btn = document.createElement('button');
+        btn.innerText = famille;
+
+        btn.onclick = () => {
+            /*console.log(famille);*/
+            chargerUneFamille(famille, data[2].data);
+        } 
+        btnZone.appendChild(btn);
+    });
     /*
 
     // charger les données de chaque famille groupé
@@ -62,7 +75,7 @@ async function afficherGraphique() {
 }
 
 function chargerUneFamille(famille, data){
-    // permet de grouper par fullname et ses données une famille
+    // permet de grouper par fullname et ses données une famille, il comprend tout les données d'un famille
     const dataFamille = data
         .filter(item => item.fullname && item.family.includes(famille))
         .reduce((acc,item) => { // defini reduce un objet et la liste des item filtré.
@@ -91,20 +104,17 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
 
     // Défini dataFiltree avec les données de la famille données et ces problèmes associés
     let dataFiltree;
-    console.log(dataFamille);
-    Listeproblemes.forEach(probleme => {
+    let temps;
+    let joueurs;
+    let datas;
+
+    // défini le contenu de dataset (Chart) avec le temps de chacun par problème de la famille renseigné plus haut
+    datas = Listeproblemes.map(probleme => {
         dataFiltree = dataFamille[probleme]
-            .sort((a, b) => a.time - b.time);   
-    });
-    
-    let nomDuProbleme = famille;
-    
-    // Données d'une famille
-    const joueurs = dataFiltree.map(item => item.name);   // Axe X
-    const temps = dataFiltree.map(item => item.time); // Axe Y
-    
-    
-    const datas = Listeproblemes.map(probleme => {
+            .sort((a, b) => a.time - b.time);
+        //console.log(dataFiltree);
+        temps = dataFiltree.map(item => item.time); // Axe y
+        //console.log(temps);
         return {
             label: probleme,
             data: temps,
@@ -112,10 +122,18 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
             backgroundColor: 'rgba(56, 143, 143, 0.5)',
             borderColor: 'rgba(75, 192, 192, 1)'
         }
-    })
+        });
+
+    joueurs = dataFiltree.map(item => item.name);   // Axe X
+
+    let nomDuProbleme = famille;
+    
+
+    /*console.log("temps", temps);
+    console.log("data", datas);*/
 
     // 4. Création du graphique
-    const ctx = document.querySelector('#canva1'); // On cible le canvas
+    const ctx = document.querySelector('#canva0'); // On cible le canvas
     
     if (monGraphique) { // permet de détruire le précédent 
         monGraphique.destroy();
@@ -143,4 +161,4 @@ function afficherFamille(dataFamille, Listeproblemes, famille) {
 }
 
 // On lance la fonction
-afficherGraphique();
+init();
